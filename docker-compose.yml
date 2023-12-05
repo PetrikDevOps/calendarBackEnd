@@ -1,0 +1,28 @@
+version: '3'
+services:
+  calendar-app:
+    networks:
+      - calendar-network
+    links:
+      - calendar-db
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - calendar-db
+  calendar-db:
+    networks:
+      - calendar-network
+    image: postgres:alpine
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+
+networks:
+  calendar-network:
+    driver: bridge
