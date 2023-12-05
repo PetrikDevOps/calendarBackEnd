@@ -4,6 +4,7 @@ import express from 'express';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import 
 
 
 const app = express();
@@ -11,6 +12,10 @@ const app = express();
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
+app.post("/register", (req, res) => {
+
+});
 
 
 app.use((req, res) => {
