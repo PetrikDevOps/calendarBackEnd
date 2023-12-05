@@ -13,10 +13,14 @@ const app = express();
 const userService = new UserService();
 const { checkUser, validateEmail, checkUsername, verifyUser } = userService;
 
-app.use(cors({}));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors({
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'DELETE'],
+    credentials: true
+  }));
 const users = await connectToDB();
 
 
