@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 
 import { connectToDB, q as query } from './db/db';
-import { UserService } from './services/userService';
+import { UserService } from './services/userAuthService';
 
 const app = express();
 const userService = new UserService();
@@ -25,52 +25,15 @@ const users = await connectToDB();
 
 
 app.get('/', verifyUser, (req, res) => {
-    const sql = `SELECT * FROM users WHERE id = ${req.id}`;
-    try {
-        query(users, sql);
-    }
-    catch(err) {
-        return res.status(400).json({Error: 'Error getting user'});
-    }
-    return res.status(200).json({Success: 'Logged in', user: {id: result[0].id, username: result[0].username, email: result[0].email}});
+    userService.get(req, res);
   });
 
 app.post('/register', validateEmail, checkUser, checkUsername, (req, res) => {
-    if(req.body.status.Error) {
-        return res.status(400).json(req.body.status)
-    }
-    bcrypt.hash(req.body.password.toString(), process.env.SALT || 10, (err, hash) => {
-        if(err) return res.status(400).json({Error: 'Error hashing password'});
-        const sql = `INSERT INTO users (username, email, password) VALUES (${req.body.username}, ${req.body.email}, ${hash})`;
-        try {
-            query(users, sql);
-        } catch (err) {
-            return res.status(400).json({Error: err})
-        }
-        return res.status(200).json({Success: 'User successfully created'})
-    }) 
+    userService.register(req, res);
 });
 
 app.post('/login', (req, res) => {
-    const sql = `SELECT * FROM users WHERE email = ${req.body.email}`;
-    let result = [];
-    try {
-        result = query(users, sql);
-    } catch (err) {
-        return res.status(400).json({Error: 'Error logging in'});
-    };
-    if(result.length === 0) return res.status(400).json({Error: 'No user found'});
-    bcrypt.compare(req.body.password.toString(), result[0].password, (err, response) => {
-        if(err) return res.status(400).json({Error: 'Error logging in'});
-        if(response) {
-            const id = result[0].id;
-            const token = jwt.sign({id}, process.env.JWT_SECRET, {expiresIn: process.env.TOKEN_EXPIRE_TIME || '1w'});
-            res.cookie('token', token);
-            return res.status(200).json({Success: 'Logged in'});
-        } else {
-            return res.status(400).json({Error: 'Incorrect password'});
-        }
-    })
+    userService.login(req, res);
 });
 
 app.use((req, res) => {
