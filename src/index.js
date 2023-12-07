@@ -3,8 +3,7 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-
-import { UserService } from './services/userAuthService';
+import UserService from './services/userService.js';
 
 const app = express();
 const userService = new UserService();

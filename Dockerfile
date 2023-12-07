@@ -1,4 +1,4 @@
-# Use the official Node.js image as the base image
+# Use an official Node.js runtime as a parent image
 FROM node:14
 
 # Set the working directory in the container
@@ -10,11 +10,11 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-# Copy the rest of the application code
+# Bundle app source
 COPY . .
 
-# Expose the port your app will run on
+# Expose the port that your app will run on
 EXPOSE 3000
 
-# Command to run your application
-CMD ["npm", "start"]
+# Define the command to run your application
+CMD ["node", "src/index.js"]

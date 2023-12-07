@@ -1,5 +1,6 @@
-import { Client } from 'postgres';
-import dbConfig from './dbConfig';
+import pkg from 'pg';
+const { Client } = pkg;
+import dbConfig from './dbConfig.js';
  
 const connectToDB = async () =>{
     const client = new Client({
