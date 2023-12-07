@@ -1,7 +1,7 @@
 import validator from 'validator';
 import { connectToDB, q as query } from '../db/db.js';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 const users = await connectToDB(); //Be aware ever time you call users a new socker connection is made btw the db server and the app!!!!
 
