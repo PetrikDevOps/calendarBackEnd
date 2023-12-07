@@ -2,11 +2,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
 import cors from 'cors';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 
-import { connectToDB, q as query } from './db/db';
 import { UserService } from './services/userAuthService';
 
 const app = express();
@@ -21,8 +18,6 @@ app.use(cors({
     methods: ['GET', 'POST', 'DELETE'],
     credentials: true
   }));
-const users = await connectToDB();
-
 
 app.get('/', verifyUser, (req, res) => {
     userService.get(req, res);
