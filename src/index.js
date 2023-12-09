@@ -3,11 +3,10 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import UserService from './services/userService.js';
+
+import userController from './controllers/userController.js';
 
 const app = express();
-const userService = new UserService();
-const { checkUser, validateEmail, checkUsername, verifyUser } = userService;
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -18,17 +17,7 @@ app.use(cors({
     credentials: true
   }));
 
-app.get('/', verifyUser, (req, res) => {
-    userService.get(req, res);
-  });
-
-app.post('/register', validateEmail, checkUser, checkUsername, (req, res) => {
-    userService.register(req, res);
-});
-
-app.post('/login', (req, res) => {
-    userService.login(req, res);
-});
+app.use(userController);
 
 app.use((req, res) => {
     return res.status(404).json({Error: "Missing Page (404)"});

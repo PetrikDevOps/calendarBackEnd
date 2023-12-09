@@ -1,17 +1,20 @@
 import validator from 'validator';
-import { connectToDB, q as query } from '../db/db.js';
+import { connectToDB, q as query } from './dbService.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-
-const users = await connectToDB(); //Be aware ever time you call users a new socker connection is made btw the db server and the app!!!!
+import CalendarService from './calendarService.js';
 
 export default class UserService {
 
+    constructor() {
+        this.users = connectToDB();
+        this.calendar = new CalendarService();
+    }
     //auth middleware
     
     checkUser = (req, res, next) => {
         const sql = `SELECT * FROM users WHERE email = ${req.body.email}`;
-        if(query(users, sql).length > 0) return res.status(400).json({Error: 'User already exists'})
+        if(query(this.users, sql).length > 0) return res.status(400).json({Error: 'User already exists'})
         next();
     };
 
@@ -22,7 +25,7 @@ export default class UserService {
 
     checkUsername = (req, res, next) => {
         const sql = `SELECT * FROM users WHERE username = ${req.body.username}`;
-        if(query(users, sql).length > 0) return res.status(400).json({Error: 'Username taken'})
+        if(query(this.users, sql).length > 0) return res.status(400).json({Error: 'Username taken'})
         next();
     }
 
@@ -46,9 +49,10 @@ export default class UserService {
         }
         bcrypt.hash(req.body.password.toString(), process.env.SALT || 10, (err, hash) => {
         if(err) return res.status(400).json({Error: 'Error hashing password'});
-            const sql = `INSERT INTO users (username, email, password) VALUES (${req.body.username}, ${req.body.email}, ${hash})`;
+            const sql = `INSERT INTO users (username, email, password) VALUES (${req.body.username}, ${req.body.email}, ${hash}) RETURNING id`;
             try {
-                query(users, sql);
+                const id = query(this.users, sql);
+                this.calendar.generate(id);
             } catch (err) {
                 return res.status(400).json({Error: err})
             }
@@ -60,7 +64,7 @@ export default class UserService {
         const sql = `SELECT * FROM users WHERE email = ${req.body.email}`;
         let result = [];
         try {
-            result = query(users, sql);
+            result = query(this.users, sql);
         } catch (err) {
             return res.status(400).json({Error: 'Error logging in'});
             };
@@ -82,7 +86,7 @@ export default class UserService {
     get = (req, res) => {
         const sql = `SELECT * FROM users WHERE id = ${req.id}`;
         try {
-            query(users, sql);
+            query(this.users, sql);
         }
         catch(err) {
             return res.status(400).json({Error: 'Error getting user'});
