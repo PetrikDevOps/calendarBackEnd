@@ -8,9 +8,12 @@ const calendar = new CalendarService(db);
 
 const {
     get,
+    openDay,
     validateDate
 } = calendar;
 
-calendarController.get('/calendar', validateDate, get);
+calendarController.post('/getDay', get);
+calendarController.post('/openDay', validateDate, openDay);
+
 
 export default calendarController;

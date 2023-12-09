@@ -40,13 +40,30 @@ export default class CalendarService {
         }
     }
 
-    get = async (req, res) => {
-        const { id, day } = req.body;
+    openDay = async (req, res) => {
+        const { id, day} = req.body;
         if (!id || !day) {
             return res.status(400).json({ Error: 'Missing fields' });
         }
 
-        const sql = `SELECT day${day} FROM calendar WHERE user_id = ${id}`;
+        const sql = `UPDATE calendar SET day${day}_is_open = true WHERE user_id = ${id} RETURNING day${day}`;
+        try {
+            const day_id = await this.db.query(sql);
+            const sql2 = `SELECT msg FROM msg WHERE id = ${day_id.rows[0]}`;
+            const result = await this.db.query(sql2);
+            return result.rows[0];
+        } catch (err) {
+            return res.status(400).json({Error: err})
+        }
+    }
+
+    get = async (req, res) => {
+        const { id, day} = req.body;
+        if (!id || !day) {
+            return res.status(400).json({ Error: 'Missing fields' });
+        }
+
+        const sql = `SELECT day${day}_is_open FROM calendar WHERE user_id = ${id}`;
         try {
             const result = await this.db.query(sql);
             return result.rows[0];
