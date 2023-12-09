@@ -73,29 +73,28 @@ export default class UserService {
 					.status(400)
 					.json({ Error: 'Error creating new user (1)' });
 			const { id, email, username } = user[0];
-			const token = jwt.sign(
+			jwt.sign(
 				{ id, email, username },
 				process.env.JWT_SECRET || 'secret',
-				{
-					expiresIn: process.env.JWT_EXPIRES_IN || '3d',
+				(err, token) => {
+					if (err)
+						return res
+							.status(400)
+							.json({ Error: 'Error Signing token on register' });
+					res.cookie('token', token, {
+						httpOnly: true,
+						secure: true,
+						sameSite: 'none',
+					});
+					return res.status(200).json({ Success: 'User created' });
 				}
 			);
-
-			return res
-				.cookie('token', token, {
-					httpOnly: true,
-					secure: true,
-					sameSite: 'none',
-				})
-				.res.status(200)
-				.json({ Success: 'User created' });
 		} catch (err) {
 			return res.status(400).json({ Error: 'Error creating new user' });
 		}
 	};
 
 	login = async (req, res) => {
-
 		const { account, password: Password, isEmail } = req.body;
 		const sqlQuery = isEmail
 			? `SELECT * FROM users WHERE email = '${account}'`
@@ -114,21 +113,22 @@ export default class UserService {
 				return res.status(400).json({ Error: 'Invalid password' });
 
 			//sign token
-			const token = jwt.sign(
+			jwt.sign(
 				{ id, email, username },
 				process.env.JWT_SECRET || 'secret',
-				{
-					expiresIn: process.env.JWT_EXPIRES_IN || '3d',
+				(err, token) => {
+					if (err)
+						return res
+							.status(400)
+							.json({ Error: 'Error Signing token on login' });
+					res.cookie('token', token, {
+						httpOnly: true,
+						secure: true,
+						sameSite: 'none',
+					});
+					return res.status(200).json({ Success: 'User logged in' });
 				}
 			);
-			return res
-				.cookie('token', token, {
-					httpOnly: true,
-					secure: true,
-					sameSite: 'none',
-				})
-				.status(200)
-				.json({ Success: 'User logged in' });
 		} catch (err) {
 			return res.status(400).json({ Error: 'Error logging in' });
 		}
