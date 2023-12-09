@@ -1,6 +1,6 @@
 import express from 'express';
-import dbService from '../services/dbService';
-import CalendarService from '../services/calendarService';
+import dbService from '../services/dbService.js';
+import CalendarService from '../services/calendarService.js';
 
 const calendarController = express.Router();
 const db = new dbService();

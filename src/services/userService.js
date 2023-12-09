@@ -64,13 +64,7 @@ export default class UserService {
 			const user_id = await this.db.query(
 				`INSERT INTO users (email, username, password) VALUES ('${Email}', '${Username}', '${hashedPassword}') RETURNING id`
 			);
-
-			if (user_id.rows.length === 0)
-				this.calendar.generate(user_id.rows[0]);
-			else
-				return res
-					.status(400)
-					.json({ Error: 'Error creating new user (2)' });
+			this.calendar.generate(user_id.rows[0].id);
 
 			const user = await this.db.query(
 				`SELECT * FROM users WHERE email = '${Email}'`
