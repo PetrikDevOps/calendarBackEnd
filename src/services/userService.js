@@ -96,8 +96,6 @@ export default class UserService {
 
 	login = async (req, res) => {
 
-		console.log(process.env.JWT_SECRET);
-
 		const { account, password: Password, isEmail } = req.body;
 		const sqlQuery = isEmail
 			? `SELECT * FROM users WHERE email = '${account}'`
