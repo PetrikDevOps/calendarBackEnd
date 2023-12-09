@@ -3,92 +3,146 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 export default class UserService {
+	constructor(db, calendar) {
+		this.db = db;
+		this.calendar = calendar;
+	}
 
-    constructor(db, calendar) {
-        this.db = db;
-        this.calendar = calendar;
-    }
-    //auth middleware
-    
-    checkUser = (req, res, next) => {
-        const sql = `SELECT * FROM users WHERE email = ${req.body.email}`;
-        if(this.db.query(sql).length > 0) return res.status(400).json({Error: 'User already exists'})
-        next();
-    };
+	SignToken(id, email, username) {
+		return jwt.sign({ id, email, username }, process.env.JWT_SECRET, {
+			expiresIn: process.env.JWT_EXPIRES_IN || '3d',
+		});
+	}
 
-    validateEmail = (req, res, next) => {
-        if(!req.body.email || !validator.isEmail(req.body.email)) return res.status(400).json({Error: 'Invalid Email'});
-        next();
-    };
+	//auth middleware
+	validateRegistration = async (req, res, next) => {
+		const { email, username, password } = req.body;
+		if (!email || !username || !password) {
+			return res.status(400).json({ Error: 'Missing fields' });
+		}
+		if (!validator.isEmail(email)) {
+			return res.status(400).json({ Error: 'Invalid email' });
+		}
+		if (!validator.isAlphanumeric(username)) {
+			return res.status(400).json({
+				Error: 'Username cannot contain special characters or spaces',
+			});
+		}
 
-    checkUsername = (req, res, next) => {
-        const sql = `SELECT * FROM users WHERE username = ${req.body.username}`;
-        if(this.db.query(sql).length > 0) return res.status(400).json({Error: 'Username taken'})
-        next();
-    }
+		try {
+			//check email
+			const user = await this.db.query(
+				'SELECT * FROM users WHERE email = ?',
+				[email]
+			);
+			if (user.length > 0)
+				return res.status(400).json({ Error: 'Email already registered' });
+			//check username
+			const usernameCheck = await this.db.query(
+				'SELECT * FROM users WHERE username = ?',
+				[username]
+			);
+			if (usernameCheck.length > 0)
+				return res
+					.status(400)
+					.json({ Error: 'Username already registered' });
+			next();
+		} catch (err) {
+			return res.status(400).json({ Error: 'Error checking user' });
+		}
+	};
 
-    verifyUser = (req, res, next) => {
-        const token = req.cookies.token;
-        if (!token) return res.json({Error: 'No token found'});
-      
-        jwt.verify(token, process.env.JWT_SECRET, (err, result) => {
-          if (err) return res.json({Error: 'Invalid token'});
-      
-          req.id = result.id;
-          next();
-        });
-      }
+	validateLogin = (req, res, next) => {
+		const { account, password, isEmail } = req.body;
+		if (!account || !password) {
+			return res.status(400).json({ Error: 'Missing fields' });
+		}
+		if (isEmail && !validator.isEmail(account)) {
+			return res.status(400).json({ Error: 'Invalid email' });
+		}
 
-    //auth
-    
-    register = (req, res) => {
-        if(req.body.status.Error) {
-            return res.status(400).json(req.body.status)
-        }
-        bcrypt.hash(req.body.password.toString(), process.env.SALT || 10, (err, hash) => {
-        if(err) return res.status(400).json({Error: 'Error hashing password'});
-            const sql = `INSERT INTO users (username, email, password) VALUES (${req.body.username}, ${req.body.email}, ${hash}) RETURNING id`;
-            try {
-                const id = this.db.query(sql);
-                this.calendar.generate(id);
-            } catch (err) {
-                return res.status(400).json({Error: err})
-            }
-            return res.status(200).json({Success: 'User successfully created'})
-        }) 
-    };
+		next();
+	};
 
-    login = (req, res) => {
-        const sql = `SELECT * FROM users WHERE email = ${req.body.email}`;
-        let result = [];
-        try {
-            result = this.db.query(sql);
-        } catch (err) {
-            return res.status(400).json({Error: 'Error logging in'});
-            };
-        if(result.length === 0) return res.status(400).json({Error: 'No user found'});
-        bcrypt.compare(req.body.password.toString(), result[0].password, (err, response) => {
-            if(err) return res.status(400).json({Error: 'Error logging in'});
-            if(response) {
-                const id = result[0].id;
-                const token = jwt.sign({id}, process.env.JWT_SECRET, {expiresIn: process.env.TOKEN_EXPIRE_TIME || '1w'});
-                res.cookie('token', token);
-                return res.status(200).json({Success: 'Logged in'});
-            } else {
-                return res.status(400).json({Error: 'Incorrect password'});
-            }
-        })
-    }
+	register = async (req, res) => {
+		const { email: Email, username: Username, password: Password } = req.body;
 
-    //base ituls
-    get = (req, res) => {
-        const sql = `SELECT * FROM users WHERE id = ${req.id}`;
-        try {
-            this.db.query(sql);
-        }
-        catch(err) {
-            return res.status(400).json({Error: 'Error getting user'});
-        }
-        return res.status(200).json({Success: 'Logged in', user: {id: result[0].id, username: result[0].username, email: result[0].email}});
-    }
+		try {
+			const hashedPassword = await bcrypt.hash(Password.toString(), 10);
+			await this.db.query(
+				`INSERT INTO users (email, username, password) VALUES (${Email}, ${Username}, ${Password})`
+			);
+
+			const user = await this.db.query(
+				`SELECT * FROM users WHERE email = ${Email}`
+			);
+			if (user.length === 0)
+				return res.status(400).json({ Error: 'Error creating new user' });
+			const { id, email, username } = user[0];
+			const token = this.SignToken(id, email, username);
+			res.cookie('token', token, {
+				httpOnly: true,
+				secure: true,
+				sameSite: 'none',
+			});
+			return res.status(200).json({ Success: 'User created' });
+		} catch (err) {
+			return res.status(400).json({ Error: 'Error creating new user' });
+		}
+	};
+
+	login = async (req, res) => {
+		const { account, password: Password, isEmail } = req.body;
+		const sqlQuery = isEmail
+			? `SELECT * FROM users WHERE email = ${account}`
+			: `SELECT * FROM users WHERE username = ${account}`;
+
+		try {
+			//get user
+			const user = await this.db.query(sqlQuery);
+			if (user.length === 0)
+				return res.status(400).json({ Error: "User doesn't exist" });
+			const { id, username, email, password } = user[0];
+
+			//check password
+			const passwordCheck = await bcrypt.compare(Password, password);
+			if (!passwordCheck)
+				return res.status(400).json({ Error: 'Invalid password' });
+
+			//sign token
+			const token = this.SignToken(id, email, username);
+			res.cookie('token', token, {
+				httpOnly: true,
+				secure: true,
+				sameSite: 'none',
+			});
+			return res.status(200).json({ Success: 'User logged in' });
+		} catch (err) {
+			return res.status(400).json({ Error: 'Error logging in' });
+		}
+	};
+
+	getUser = (req, res) => {
+		//get token
+		const { token } = req.cookies;
+		if (!token) return res.status(400).json({ Error: 'Unauthorized' });
+
+		try {
+			//decode token
+			const decoded = jwt.verify(token, process.env.JWT_SECRET);
+			const { id, email, username } = decoded;
+
+			//return user
+			return res
+				.status(200)
+				.json({ Success: 'User logged in', user: { id, email, username } });
+		} catch (err) {
+			return res.status(400).json({ Error: 'Error getting user' });
+		}
+	};
+
+	logout = (req, res) => {
+		res.clearCookie('token');
+		return res.status(200).json({ Success: 'User logged out' });
+	};
 }

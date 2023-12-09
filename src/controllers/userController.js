@@ -8,11 +8,18 @@ const db = new dbService();
 const calendar = new CalendarService(db);
 const userService = new UserService(db, calendar);
 
-const { checkUser, validateEmail, checkUsername, verifyUser, get, register, login} = userService;
+const {
+	validateRegistration,
+	validateLogin,
+	getUser,
+	register,
+	login,
+	logout,
+} = userService;
 
-userController.get('/', verifyUser, get);
-userController.post('/register',validateEmail, checkUser, checkUsername, register);
-userController.post('/login', login);
-
+userController.get('/', getUser);
+userController.post('/register', validateRegistration, register);
+userController.post('/login', validateLogin, login);
+userController.delete('/logout', logout);
 
 export default userController;
