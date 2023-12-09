@@ -75,7 +75,7 @@ export default class UserService {
 			const { id, email, username } = user[0];
 			const token = jwt.sign(
 				{ id, email, username },
-				process.env.JWT_SECRET,
+				process.env.JWT_SECRET || 'secret',
 				{
 					expiresIn: process.env.JWT_EXPIRES_IN || '3d',
 				}
@@ -92,6 +92,9 @@ export default class UserService {
 	};
 
 	login = async (req, res) => {
+
+		console.log(process.env.JWT_SECRET);
+
 		const { account, password: Password, isEmail } = req.body;
 		const sqlQuery = isEmail
 			? `SELECT * FROM users WHERE email = '${account}'`
@@ -112,7 +115,7 @@ export default class UserService {
 			//sign token
 			const token = jwt.sign(
 				{ id, email, username },
-				process.env.JWT_SECRET,
+				process.env.JWT_SECRET || 'secret',
 				{
 					expiresIn: process.env.JWT_EXPIRES_IN || '3d',
 				}
@@ -135,7 +138,7 @@ export default class UserService {
 
 		try {
 			//decode token
-			const decoded = jwt.verify(token, process.env.JWT_SECRET);
+			const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
 			const { id, email, username } = decoded;
 
 			//return user

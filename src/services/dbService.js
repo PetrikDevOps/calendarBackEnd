@@ -30,7 +30,7 @@ export default class dbService {
         } catch (error) {
             console.error('Error executing query:', error.message);
         } finally {
-            console.log('Disconnected from the database');
+            console.log('Query executed successfully');
         }
     }
 }
