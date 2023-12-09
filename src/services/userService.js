@@ -66,7 +66,7 @@ export default class UserService {
 			);
 
 			if (user_id.rows.length === 0)
-				this.calendar.generate(user_id.rows[0].id);
+				this.calendar.generate(user_id.rows[0]);
 			else
 				return res
 					.status(400)
