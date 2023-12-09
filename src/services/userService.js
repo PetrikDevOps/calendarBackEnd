@@ -68,14 +68,16 @@ export default class UserService {
 		try {
 			const hashedPassword = await bcrypt.hash(Password.toString(), 10);
 			await this.db.query(
-				`INSERT INTO users (email, username, password) VALUES (${Email}, ${Username}, ${Password})`
+				`INSERT INTO users (email, username, password) VALUES ('${Email}', '${Username}', '${Password}')`
 			);
 
 			const user = await this.db.query(
 				`SELECT * FROM users WHERE email = '${Email}'`
 			);
 			if (user.length === 0)
-				return res.status(400).json({ Error: 'Error creating new user' });
+				return res
+					.status(400)
+					.json({ Error: 'Error creating new user (1)' });
 			const { id, email, username } = user[0];
 			const token = this.SignToken(id, email, username);
 			res.cookie('token', token, {
