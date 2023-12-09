@@ -32,13 +32,13 @@ export default class UserService {
 		try {
 			//check email
 			const user = await this.db.query(
-				`SELECT * FROM users WHERE email = ${email}`
+				`SELECT * FROM users WHERE email = '${email}'`
 			);
 			if (user.length > 0)
 				return res.status(400).json({ Error: 'Email already registered' });
 			//check username
 			const usernameCheck = await this.db.query(
-				`SELECT * FROM users WHERE username = ${username}`
+				`SELECT * FROM users WHERE username = '${username}'`
 			);
 			if (usernameCheck.length > 0)
 				return res
@@ -72,7 +72,7 @@ export default class UserService {
 			);
 
 			const user = await this.db.query(
-				`SELECT * FROM users WHERE email = ${Email}`
+				`SELECT * FROM users WHERE email = '${Email}'`
 			);
 			if (user.length === 0)
 				return res.status(400).json({ Error: 'Error creating new user' });
@@ -92,8 +92,8 @@ export default class UserService {
 	login = async (req, res) => {
 		const { account, password: Password, isEmail } = req.body;
 		const sqlQuery = isEmail
-			? `SELECT * FROM users WHERE email = ${account}`
-			: `SELECT * FROM users WHERE username = ${account}`;
+			? `SELECT * FROM users WHERE email = '${account}'`
+			: `SELECT * FROM users WHERE username = '${account}'`;
 
 		try {
 			//get user
