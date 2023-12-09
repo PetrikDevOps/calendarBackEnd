@@ -1,20 +1,18 @@
 import validator from 'validator';
-import { connectToDB, q as query } from './dbService.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import CalendarService from './calendarService.js';
 
 export default class UserService {
 
-    constructor() {
-        this.users = connectToDB();
-        this.calendar = new CalendarService();
+    constructor(db, calendar) {
+        this.db = db;
+        this.calendar = calendar;
     }
     //auth middleware
     
     checkUser = (req, res, next) => {
         const sql = `SELECT * FROM users WHERE email = ${req.body.email}`;
-        if(query(this.users, sql).length > 0) return res.status(400).json({Error: 'User already exists'})
+        if(this.db.query(sql).length > 0) return res.status(400).json({Error: 'User already exists'})
         next();
     };
 
@@ -25,7 +23,7 @@ export default class UserService {
 
     checkUsername = (req, res, next) => {
         const sql = `SELECT * FROM users WHERE username = ${req.body.username}`;
-        if(query(this.users, sql).length > 0) return res.status(400).json({Error: 'Username taken'})
+        if(this.db.query(sql).length > 0) return res.status(400).json({Error: 'Username taken'})
         next();
     }
 
@@ -51,7 +49,7 @@ export default class UserService {
         if(err) return res.status(400).json({Error: 'Error hashing password'});
             const sql = `INSERT INTO users (username, email, password) VALUES (${req.body.username}, ${req.body.email}, ${hash}) RETURNING id`;
             try {
-                const id = query(this.users, sql);
+                const id = this.db.query(sql);
                 this.calendar.generate(id);
             } catch (err) {
                 return res.status(400).json({Error: err})
@@ -64,7 +62,7 @@ export default class UserService {
         const sql = `SELECT * FROM users WHERE email = ${req.body.email}`;
         let result = [];
         try {
-            result = query(this.users, sql);
+            result = this.db.query(sql);
         } catch (err) {
             return res.status(400).json({Error: 'Error logging in'});
             };
@@ -86,7 +84,7 @@ export default class UserService {
     get = (req, res) => {
         const sql = `SELECT * FROM users WHERE id = ${req.id}`;
         try {
-            query(this.users, sql);
+            this.db.query(sql);
         }
         catch(err) {
             return res.status(400).json({Error: 'Error getting user'});
