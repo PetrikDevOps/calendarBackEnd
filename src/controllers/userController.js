@@ -17,7 +17,7 @@ const {
 	logout,
 } = userService;
 
-userController.get('/', getUser);
+userController.get('/user', getUser);
 userController.post('/register', validateRegistration, register);
 userController.post('/login', validateLogin, login);
 userController.delete('/logout', logout);
