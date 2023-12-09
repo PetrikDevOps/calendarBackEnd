@@ -1,3 +1,5 @@
+import e from "express";
+
 export default class CalendarService {
     constructor(db) {
         this.db = db;
@@ -21,14 +23,21 @@ export default class CalendarService {
 
     validateDate = (req, res, next) => {
         const { day } = req.body;
+        let date = new Date();
+        let currentDay = date.getDate();
+
         if (!day) {
             return res.status(400).json({ Error: 'Missing fields' });
         }
-        if (day <= 0 || day > 24) {
+        if (day < 1 || day > 24) {
             return res.status(400).json({ Error: 'Invalid day' });
         }
-
-        next();
+        if (day <= currentDay) {
+            next();
+        }
+        else {
+            return res.status(400).json({ Error: ':D' });
+        }
     }
 
     get = async (req, res) => {

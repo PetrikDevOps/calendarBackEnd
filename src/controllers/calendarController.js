@@ -7,9 +7,10 @@ const db = new dbService();
 const calendar = new CalendarService(db);
 
 const {
-    get
+    get,
+    validateDate
 } = calendar;
 
-calendarController.get('/calendar', get);
+calendarController.get('/calendar', validateDate, get);
 
 export default calendarController;
