@@ -8,12 +8,6 @@ export default class UserService {
 		this.calendar = calendar;
 	}
 
-	SignToken(id, email, username) {
-		return jwt.sign({ id, email, username }, process.env.JWT_SECRET, {
-			expiresIn: process.env.JWT_EXPIRES_IN || '3d',
-		});
-	}
-
 	//auth middleware
 	validateRegistration = async (req, res, next) => {
 		const { email, username, password } = req.body;
@@ -68,7 +62,7 @@ export default class UserService {
 		try {
 			const hashedPassword = await bcrypt.hash(Password.toString(), 10);
 			await this.db.query(
-				`INSERT INTO users (email, username, password) VALUES ('${Email}', '${Username}', '${Password}')`
+				`INSERT INTO users (email, username, password) VALUES ('${Email}', '${Username}', '${hashedPassword}')`
 			);
 
 			const user = await this.db.query(
@@ -79,7 +73,13 @@ export default class UserService {
 					.status(400)
 					.json({ Error: 'Error creating new user (1)' });
 			const { id, email, username } = user[0];
-			const token = this.SignToken(id, email, username);
+			const token = jwt.sign(
+				{ id, email, username },
+				process.env.JWT_SECRET,
+				{
+					expiresIn: process.env.JWT_EXPIRES_IN || '3d',
+				}
+			);
 			res.cookie('token', token, {
 				httpOnly: true,
 				secure: true,
@@ -110,7 +110,13 @@ export default class UserService {
 				return res.status(400).json({ Error: 'Invalid password' });
 
 			//sign token
-			const token = this.SignToken(id, email, username);
+			const token = jwt.sign(
+				{ id, email, username },
+				process.env.JWT_SECRET,
+				{
+					expiresIn: process.env.JWT_EXPIRES_IN || '3d',
+				}
+			);
 			res.cookie('token', token, {
 				httpOnly: true,
 				secure: true,
