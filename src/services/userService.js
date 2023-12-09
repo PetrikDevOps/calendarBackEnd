@@ -80,12 +80,15 @@ export default class UserService {
 					expiresIn: process.env.JWT_EXPIRES_IN || '3d',
 				}
 			);
-			res.cookie('token', token, {
-				httpOnly: true,
-				secure: true,
-				sameSite: 'none',
-			});
-			return res.status(200).json({ Success: 'User created' });
+
+			return res
+				.cookie('token', token, {
+					httpOnly: true,
+					secure: true,
+					sameSite: 'none',
+				})
+				.res.status(200)
+				.json({ Success: 'User created' });
 		} catch (err) {
 			return res.status(400).json({ Error: 'Error creating new user' });
 		}
@@ -117,12 +120,14 @@ export default class UserService {
 					expiresIn: process.env.JWT_EXPIRES_IN || '3d',
 				}
 			);
-			res.cookie('token', token, {
-				httpOnly: true,
-				secure: true,
-				sameSite: 'none',
-			});
-			return res.status(200).json({ Success: 'User logged in' });
+			return res
+				.cookie('token', token, {
+					httpOnly: true,
+					secure: true,
+					sameSite: 'none',
+				})
+				.status(200)
+				.json({ Success: 'User logged in' });
 		} catch (err) {
 			return res.status(400).json({ Error: 'Error logging in' });
 		}
