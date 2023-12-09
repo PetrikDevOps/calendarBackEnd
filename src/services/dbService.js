@@ -10,6 +10,8 @@ export default class dbService {
             user: process.env.POSTGRES_USER || 'Petrik',
             password: process.env.POSTGRES_PASSWORD || 'Petrik23'
         });
+
+        this.connectToDB();
     }
 
     connectToDB = async () => {
@@ -23,13 +25,11 @@ export default class dbService {
 
     query = async (query) => {
         try {
-            await this.connectToDB();
             const result = await this.client.query(query);
             return result;
         } catch (error) {
             console.error('Error executing query:', error.message);
         } finally {
-            await this.client.end();
             console.log('Disconnected from the database');
         }
     }
