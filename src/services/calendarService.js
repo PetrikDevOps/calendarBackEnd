@@ -19,11 +19,32 @@ export default class CalendarService {
         return array;
       }
 
-    get = (req, res) => {
-        const sql = `SELECT * FROM calendar`;
-        const result = this.db.query(sql);
-        return res.status(200).json(result);
-    };
+    validateDate = (req, res, next) => {
+        const { day } = req.body;
+        if (!day) {
+            return res.status(400).json({ Error: 'Missing fields' });
+        }
+        if (day <= 0 || day > 24) {
+            return res.status(400).json({ Error: 'Invalid day' });
+        }
+
+        next();
+    }
+
+    get = async (req, res) => {
+        const { id, day } = req.body;
+        if (!id || !day) {
+            return res.status(400).json({ Error: 'Missing fields' });
+        }
+
+        const sql = `SELECT day${day} FROM calendar WHERE user_id = ${id}`;
+        try {
+            const result = await this.db.query(sql);
+            return result.rows[0];
+        } catch (err) {
+            return res.status(400).json({Error: err})
+        }
+    }
 
     generate = (id) => {
         randomized_list = this.shuffle(this.days);
