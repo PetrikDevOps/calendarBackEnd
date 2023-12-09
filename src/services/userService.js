@@ -1,6 +1,6 @@
 import validator from 'validator';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 
 export default class UserService {
 	constructor(db, calendar) {
@@ -28,13 +28,13 @@ export default class UserService {
 			const user = await this.db.query(
 				`SELECT * FROM users WHERE email = '${email}'`
 			);
-			if (user.length > 0)
+			if (user.rows.length > 0)
 				return res.status(400).json({ Error: 'Email already registered' });
 			//check username
 			const usernameCheck = await this.db.query(
 				`SELECT * FROM users WHERE username = '${username}'`
 			);
-			if (usernameCheck.length > 0)
+			if (usernameCheck.rows.length > 0)
 				return res
 					.status(400)
 					.json({ Error: 'Username already registered' });
@@ -68,11 +68,11 @@ export default class UserService {
 			const user = await this.db.query(
 				`SELECT * FROM users WHERE email = '${Email}'`
 			);
-			if (user.length === 0)
+			if (user.rows.length === 0)
 				return res
 					.status(400)
 					.json({ Error: 'Error creating new user (1)' });
-			const { id, email, username } = user[0];
+			const { id, email, username } = user.rows[0];
 			jwt.sign(
 				{ id, email, username },
 				process.env.JWT_SECRET || 'secret',
@@ -103,12 +103,13 @@ export default class UserService {
 		try {
 			//get user
 			const user = await this.db.query(sqlQuery);
-			if (user.length === 0)
+			if (user.rows.length === 0)
 				return res.status(400).json({ Error: "User doesn't exist" });
-			const { id, username, email, password } = user[0];
+			const { id, username, email, password } = user.rows[0];
 
 			//check password
 			const passwordCheck = await bcrypt.compare(Password, password);
+			console.log(passwordCheck);
 			if (!passwordCheck)
 				return res.status(400).json({ Error: 'Invalid password' });
 
@@ -121,16 +122,16 @@ export default class UserService {
 						return res
 							.status(400)
 							.json({ Error: 'Error Signing token on login' });
-					res.cookie('token', token, {
-						httpOnly: true,
-						secure: true,
-						sameSite: 'none',
-					});
+							res.cookie('token', token, {
+								httpOnly: true,
+								secure: true,
+								sameSite: 'none',
+							});
 					return res.status(200).json({ Success: 'User logged in' });
 				}
 			);
 		} catch (err) {
-			return res.status(400).json({ Error: 'Error logging in' });
+			return res.status(400).json({ Error: 'Error logging in' , err: err });
 		}
 	};
 
