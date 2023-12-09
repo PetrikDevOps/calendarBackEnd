@@ -32,15 +32,13 @@ export default class UserService {
 		try {
 			//check email
 			const user = await this.db.query(
-				'SELECT * FROM users WHERE email = ?',
-				[email]
+				`SELECT * FROM users WHERE email = ${email}`
 			);
 			if (user.length > 0)
 				return res.status(400).json({ Error: 'Email already registered' });
 			//check username
 			const usernameCheck = await this.db.query(
-				'SELECT * FROM users WHERE username = ?',
-				[username]
+				`SELECT * FROM users WHERE username = ${username}`
 			);
 			if (usernameCheck.length > 0)
 				return res
