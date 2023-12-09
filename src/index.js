@@ -20,6 +20,7 @@ app.use(
 );
 
 app.use(userController);
+app.use(calendarController);
 
 app.get('/test', (req, res) => {
 	res.json('test ok');
