@@ -29,8 +29,6 @@ export default class dbService {
             return result;
         } catch (error) {
             console.error('Error executing query:', error.message);
-        } finally {
-            console.log('Query executed successfully');
         }
     }
 }
