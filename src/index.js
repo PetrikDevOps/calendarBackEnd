@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import userController from './controllers/userController.js';
 import calendarController from './controllers/calendarController.js';
 import testController from './controllers/testController.js';
+import dbService from './services/dbService.js';
 
 const app = express();
 
@@ -32,5 +33,8 @@ app.get('/test', (req, res) => {
 app.use((req, res) => {
 	return res.status(404).json({ Error: 'Missing Page (404)' });
 });
+
+const db = new dbService();
+db.init();
 
 app.listen(process.env.PORT || 3000);

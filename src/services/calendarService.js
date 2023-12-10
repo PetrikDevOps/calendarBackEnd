@@ -23,6 +23,7 @@ export default class CalendarService {
         const { day } = req.body;
         let date = new Date();
         let currentDay = date.getDate();
+        console.log(currentDay, day);
 
         if (!day) {
             return res.status(400).json({ Error: 'Missing fields' });
