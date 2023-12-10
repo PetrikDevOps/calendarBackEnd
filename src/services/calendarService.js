@@ -51,7 +51,7 @@ export default class CalendarService {
             const day_id = await this.db.query(sql);
             const sql2 = `SELECT msg FROM msg WHERE id = ${day_id.rows[0].id}`;
             const result = await this.db.query(sql2);
-            return result.rows[0];
+            return res.status(200).json({ msg: result.rows[0].msg });
         } catch (err) {
             return res.status(400).json({Error: err})
         }
@@ -63,10 +63,10 @@ export default class CalendarService {
             return res.status(400).json({ Error: 'Missing fields' });
         }
 
-        const sql = `SELECT day${day}_is_open FROM calendars WHERE user_id = ${id}`;
+        const sql = `SELECT day${day}_is_open as day FROM calendars WHERE user_id = ${id}`;
         try {
             const result = await this.db.query(sql);
-            return result.rows[0];
+            return res.status(200).json({ day: result.rows[0].day });
         } catch (err) {
             return res.status(400).json({Error: err})
         }
