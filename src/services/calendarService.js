@@ -44,12 +44,12 @@ export default class CalendarService {
             return res.status(400).json({ Error: 'Missing fields' });
         }
 
-        const sql = `UPDATE calendars SET day${day}_is_open = true WHERE user_id = ${id} RETURNING day${day} as day`;
+        const sql = `UPDATE calendars SET day${day}_is_open = true WHERE user_id = ${id} RETURNING day${day} AS id`;
         try {
-            const resu = await this.db.query(sql);
-            const sql2 = `SELECT msg FROM msg WHERE id = ${resu.rows[0].day}`;
+            const day_id = await this.db.query(sql);
+            const sql2 = `SELECT msg FROM msg WHERE id = ${day_id.rows[0].id}`;
             const result = await this.db.query(sql2);
-            return res.status(200).json(result.rows[0].msg);
+            return res.status(200).json({ msg: result.rows[0].msg });
         } catch (err) {
             return res.status(400).json({Error: err})
         }
@@ -61,11 +61,10 @@ export default class CalendarService {
             return res.status(400).json({ Error: 'Missing fields' });
         }
 
-        const sql = `SELECT day${day}_is_open as is_open FROM calendars WHERE user_id = ${id}`;
+        const sql = `SELECT day${day}_is_open as day FROM calendars WHERE user_id = ${id}`;
         try {
             const result = await this.db.query(sql);
-            
-            return res.status(200).json(result.rows[0].is_open);
+            return res.status(200).json({ day: result.rows[0].day });
         } catch (err) {
             return res.status(400).json({Error: err})
         }
