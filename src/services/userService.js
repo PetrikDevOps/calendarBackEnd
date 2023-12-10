@@ -1,6 +1,6 @@
 import validator from 'validator';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 export default class UserService {
 	constructor(db, calendar) {

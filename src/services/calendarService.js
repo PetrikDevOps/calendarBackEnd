@@ -46,10 +46,10 @@ export default class CalendarService {
             return res.status(400).json({ Error: 'Missing fields' });
         }
 
-        const sql = `UPDATE calendars SET day${day}_is_open = true WHERE user_id = ${id} RETURNING day${day}`;
+        const sql = `UPDATE calendars SET day${day}_is_open = true WHERE user_id = ${id} RETURNING day${day} AS id`;
         try {
             const day_id = await this.db.query(sql);
-            const sql2 = `SELECT msg FROM msg WHERE id = ${day_id.rows[0]}`;
+            const sql2 = `SELECT msg FROM msg WHERE id = ${day_id.rows[0].id}`;
             const result = await this.db.query(sql2);
             return result.rows[0];
         } catch (err) {
