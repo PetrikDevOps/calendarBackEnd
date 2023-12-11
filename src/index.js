@@ -24,9 +24,6 @@ app.use(
 app.use(userController);
 app.use(calendarController);
 
-app.get('/test', (req, res) => {
-	res.json('test ok');
-});
 
 app.use((req, res) => {
 	return res.status(404).json({ Error: 'Missing Page (404)' });
