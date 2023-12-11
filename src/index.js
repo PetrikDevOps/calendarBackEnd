@@ -6,7 +6,6 @@ import cookieParser from 'cookie-parser';
 
 import userController from './controllers/userController.js';
 import calendarController from './controllers/calendarController.js';
-import testController from './controllers/testController.js';
 import dbService from './services/dbService.js';
 
 const app = express();
@@ -22,7 +21,6 @@ app.use(
 	})
 );
 
-app.use(testController);
 app.use(userController);
 app.use(calendarController);
 
