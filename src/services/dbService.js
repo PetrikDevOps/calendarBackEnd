@@ -2,35 +2,35 @@ import pkg from 'pg';
 const { Client } = pkg;
 
 export default class dbService {
-    constructor() {
-        this.client = new Client({
-            host: process.env.DB_HOST || 'calendar-db-1',
-            port: parseInt(process.env.DB_PORT || '5432'),
-            database: process.env.POSTGRES_DB || 'calendar',
-            user: process.env.POSTGRES_USER || 'Petrik',
-            password: process.env.POSTGRES_PASSWORD || 'Petrik23'
-        });
+	constructor() {
+		this.client = new Client({
+			host: process.env.DB_HOST || 'calendar-db-1',
+			port: parseInt(process.env.DB_PORT || '5432'),
+			database: process.env.POSTGRES_DB || 'calendar',
+			user: process.env.POSTGRES_USER || 'Petrik',
+			password: process.env.POSTGRES_PASSWORD || 'Petrik23',
+		});
 
-        this.connectToDB();
-    }
+		this.connectToDB();
+	}
 
-    connectToDB = async () => {
-        try {
-            await this.client.connect();
-            console.log('Connected to the database');
-        } catch (error) {
-            console.error('Error connecting to the database:', error.message);
-        }
-    }
+	connectToDB = async () => {
+		try {
+			await this.client.connect();
+			console.log('Connected to the database');
+		} catch (error) {
+			console.error('Error connecting to the database:', error.message);
+		}
+	};
 
-    msg = async () => {
-        try {
-            await this.query(`DROP TABLE IF EXISTS msg;`);
-            await this.query(`Create table if not exists msg(
+	msg = async () => {
+		try {
+			await this.query(`DROP TABLE IF EXISTS msg;`);
+			await this.query(`Create table if not exists msg(
                 id serial primary key,
                 msg varchar(255) not null
             );`);
-            await this.query(`INSERT INTO public.msg (id,msg) VALUES
+			await this.query(`INSERT INTO public.msg (id,msg) VALUES
             (1,'https://purepng.com/public/uploads/large/purepng.com-red-porsche-911-carrera-carcarvehicletransportporsche-961524669275lrfxn.png'),
             (7,'https://www.freeiconspng.com/thumbs/iphone-x-pictures/apple-iphone-x-pictures-5.png'),
             (13,'https://static.wikia.nocookie.net/fortnite/images/6/6c/Unreal_-_Icon_-_Fortnite.png/revision/latest/scale-to-width-down/250?cb=20230531201239'),
@@ -39,12 +39,12 @@ export default class dbService {
             (16,'https://www.vitalpont.eu/wp-content/uploads/2020/06/BIOTECH-VEGAN-PROTEIN-500G-300x300.png'),
             (17,'https://gazleysuzuki.com/images/models/swift/base/gl-auto.png'),
             (24,'https://s3-us-west-2.amazonaws.com/media.brothers-brick.com/2023/09/75367_UCSVenator_7_2TPJ7.png'),
-            (2,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/HD_transparent_picture.png/800px-HD_transparent_picture.png'),
-            (3,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/HD_transparent_picture.png/800px-HD_transparent_picture.png'),
-            (4,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/HD_transparent_picture.png/800px-HD_transparent_picture.png'),
-            (5,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/HD_transparent_picture.png/800px-HD_transparent_picture.png'),
-            (6,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/HD_transparent_picture.png/800px-HD_transparent_picture.png'),
-            (8,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/HD_transparent_picture.png/800px-HD_transparent_picture.png'),
+            (2,'https://i.imgur.com/GzthLhX_d.webp?maxwidth=760&fidelity=grand'),
+            (3,'https://i.imgur.com/1HoDRqK_d.webp?maxwidth=760&fidelity=grand'),
+            (4,'https://i.imgur.com/wCpbQg5_d.webp?maxwidth=760&fidelity=grand'),
+            (5,'https://i.imgur.com/xKMP7TF_d.webp?maxwidth=760&fidelity=grand'),
+            (6,'https://i.imgur.com/G2mnGUI.png'),
+            (8,'https://i.imgur.com/KIWTOT0_d.webp?maxwidth=760&fidelity=grand'),
             (9,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/HD_transparent_picture.png/800px-HD_transparent_picture.png'),
             (10,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/HD_transparent_picture.png/800px-HD_transparent_picture.png'),
             (11,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/HD_transparent_picture.png/800px-HD_transparent_picture.png'),
@@ -54,31 +54,31 @@ export default class dbService {
             (21,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/HD_transparent_picture.png/800px-HD_transparent_picture.png'),
             (22,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/HD_transparent_picture.png/800px-HD_transparent_picture.png'),
             (23,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/HD_transparent_picture.png/800px-HD_transparent_picture.png'),
-            (19,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/HD_transparent_picture.png/800px-HD_transparent_picture.png');`);  
-            console.log('Table "msg" created');     
-        } catch (error) {
-            console.error('Error creating table "msg":', error.message);
-        }
-    }
+            (19,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/HD_transparent_picture.png/800px-HD_transparent_picture.png');`);
+			console.log('Table "msg" created');
+		} catch (error) {
+			console.error('Error creating table "msg":', error.message);
+		}
+	};
 
-    users = async () => {
-        try {
-            await this.query(`Create table if not exists users (
+	users = async () => {
+		try {
+			await this.query(`Create table if not exists users (
                 id serial primary key,
                 username varchar(255) not null,
                 email varchar(255) not null,
                 password varchar(255) not null,
                 created_at timestamp not null default now()
             );`);
-            console.log('Table "users" created');
-        } catch (error) {
-            console.error('Error creating table "users":', error.message);
-        }
-    }
+			console.log('Table "users" created');
+		} catch (error) {
+			console.error('Error creating table "users":', error.message);
+		}
+	};
 
-    calendars = async () => {
-        try{
-            await this.query(`Create table if not exists calendars(
+	calendars = async () => {
+		try {
+			await this.query(`Create table if not exists calendars(
                 user_id int not null,
                 day1 smallint not null,
                 day1_is_open boolean not null default false,
@@ -130,31 +130,28 @@ export default class dbService {
                 day24_is_open boolean not null default false,
                 FOREIGN KEY (user_id) REFERENCES users(id)
             );`);
-            console.log('Table "calendars" created');
-        }
-        catch (error) {
-            console.error('Error creating table "calendars":', error.message);
-        }
-    }
+			console.log('Table "calendars" created');
+		} catch (error) {
+			console.error('Error creating table "calendars":', error.message);
+		}
+	};
 
-    init = async () => {
-        try {
-            await this.msg();
-            await this.users();
-            await this.calendars();
-        }
-        catch (error) {
-            console.error('Error initializing database:', error.message);
-        }
-            
-    }
+	init = async () => {
+		try {
+			await this.msg();
+			await this.users();
+			await this.calendars();
+		} catch (error) {
+			console.error('Error initializing database:', error.message);
+		}
+	};
 
-    query = async (query) => {
-        try {
-            const result = await this.client.query(query);
-            return result;
-        } catch (error) {
-            console.error('Error executing query:', error.message);
-        }
-    }
+	query = async (query) => {
+		try {
+			const result = await this.client.query(query);
+			return result;
+		} catch (error) {
+			console.error('Error executing query:', error.message);
+		}
+	};
 }
