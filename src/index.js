@@ -3,6 +3,11 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+
+
 
 import userController from './controllers/userController.js';
 import calendarController from './controllers/calendarController.js';
@@ -15,11 +20,20 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
 	cors({
-		origin: 'http://localhost:5173',
+		origin: 'http://localhost:3000',
 		methods: ['GET', 'POST', 'DELETE'],
 		credentials: true,
 	})
 );
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+app.use(express.static(__dirname + '/public'));
+
+app.get('/', (req, res) => {
+  res.sendFile('index.html');
+});
 
 app.use(userController);
 app.use(calendarController);
