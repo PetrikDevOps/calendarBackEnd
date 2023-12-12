@@ -1,3 +1,9 @@
-# Run with 
+# Run with docker 
 
-    docker compose up --build
+```bash
+docker compose up --build
+```
+
+```bash
+http://localhost:3000/
+```
